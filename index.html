@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Verificar Cartão com Stripe</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    #card-element {
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #card-result {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Verificar Cartão</h2>
+
+  <form id="payment-form">
+    <label for="card-element">Dados do cartão:</label>
+    <div id="card-element"></div>
+    <button type="submit">Verificar</button>
+  </form>
+
+  <div id="card-result"></div>
+
+  <script>
+    const stripe = Stripe("pk_test_SUA_CHAVE_PUBLICA_AQUI"); // Substitua aqui
+    const elements = stripe.elements();
+    const card = elements.create("card");
+    card.mount("#card-element");
+
+    const form = document.getElementById("payment-form");
+    const result = document.getElementById("card-result");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      result.innerHTML = "Verificando...";
+
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: "card",
+        card: card,
+      });
+
+      if (error) {
+        result.innerHTML = `<span style="color:red;">Erro: ${error.message}</span>`;
+      } else {
+        result.innerHTML = `<span style="color:green;">Cartão válido! ID: ${paymentMethod.id}</span>`;
+        console.log(paymentMethod);
+      }
+    });
+  </script>
+
+</body>
+</html>
